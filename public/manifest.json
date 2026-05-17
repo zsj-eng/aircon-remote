@@ -1,0 +1,28 @@
+{
+  "name": "空调遥控器",
+  "short_name": "空调遥控",
+  "description": "智能空调遥控器 - 适配格力/美的/海尔等中国主流品牌",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0f23",
+  "theme_color": "#0f0f23",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["utilities", "lifestyle"],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
