@@ -4,6 +4,8 @@ import RemotePanel from './components/Remote/RemotePanel';
 import BrandSelector from './components/BrandSelector';
 import WeatherCard from './components/WeatherCard';
 import SettingsPanel from './components/SettingsPanel';
+import InstallBanner from './components/InstallBanner';
+import IRHelp from './components/IRHelp';
 import { useWeather } from './hooks/useWeather';
 import { useNotification } from './hooks/useNotification';
 import { getBrandById } from './services/irDatabase';
@@ -40,6 +42,7 @@ function App() {
   const [acState, setAcState] = useState<ACState>(DEFAULT_AC_STATE);
   const [settings, setSettings] = useState<AppSettings>(loadSettings);
   const [showBrandSelector, setShowBrandSelector] = useState(!settings.selectedBrand);
+  const [showIRHelp, setShowIRHelp] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [lastSent, setLastSent] = useState<string>('');
 
@@ -84,6 +87,9 @@ function App() {
 
   return (
     <div className="min-h-dvh flex flex-col bg-[#0f0f23] text-[#e8e8e8]">
+      {/* Install Banner */}
+      <InstallBanner />
+
       {/* App Header */}
       <header className="flex items-center justify-between px-4 py-3 border-b border-white/5">
         <div className="flex items-center gap-2">
@@ -149,6 +155,16 @@ function App() {
               onStateChange={handleStateChange}
               onSendSignal={handleSendSignal}
             />
+            {/* IR Help Button */}
+            <div className="px-4 mt-4 mb-8">
+              <button
+                onClick={() => setShowIRHelp(true)}
+                className="w-full py-2.5 rounded-xl text-sm transition-colors"
+                style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', color: '#888' }}
+              >
+                📡 如何配对空调？（红外使用指南）
+              </button>
+            </div>
           </div>
         )}
 
@@ -267,6 +283,11 @@ function App() {
           onSelect={handleBrandSelect}
           onClose={() => setShowBrandSelector(false)}
         />
+      )}
+
+      {/* IR Help Overlay */}
+      {showIRHelp && (
+        <IRHelp onClose={() => setShowIRHelp(false)} />
       )}
 
       {/* Toast */}

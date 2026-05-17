@@ -14,13 +14,15 @@ export default defineConfig({
         name: '空调遥控器',
         short_name: '空调遥控',
         description: '智能空调遥控器 - 支持中国主流品牌',
-        theme_color: '#1a1a2e',
-        background_color: '#1a1a2e',
+        theme_color: '#0f0f23',
+        background_color: '#0f0f23',
+        lang: 'zh-CN',
+        start_url: '/',
         display: 'standalone',
         orientation: 'portrait',
         icons: [
-          { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icon-512.png', sizes: '512x512', type: 'image/png' }
+          { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+          { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
         ]
       },
       workbox: {

@@ -20,7 +20,7 @@ const RemotePanel: FC<RemotePanelProps> = ({ state, settings, onStateChange, onS
   const brandInfo = settings.selectedBrand ? getBrandById(settings.selectedBrand) : null;
 
   const sendCommand = async (command: string, params: Record<string, unknown> = {}) => {
-    const result = await sendIRSignal(settings.selectedBrand || 'gree', command, params);
+    const result = await sendIRSignal(settings.selectedBrand || 'gree', state, command, params);
     onSendSignal(result);
   };
 

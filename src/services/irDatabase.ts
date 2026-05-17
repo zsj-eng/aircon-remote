@@ -1,4 +1,6 @@
-import type { BrandConfig, ACType } from '../types';
+import type { BrandConfig, ACType, ACState } from '../types';
+import { IrTransmitter } from '../plugins/IrTransmitterPlugin';
+import { generateIRCode } from '../utils/irUtils';
 
 export const BRANDS: BrandConfig[] = [
   { id: 'gree', name: '格力 (Gree)', types: ['wall', 'desktop', 'cabinet'] },
@@ -33,35 +35,56 @@ export function getBrandById(id: string): BrandConfig | undefined {
   return BRANDS.find(b => b.id === id);
 }
 
-// Simulate sending IR signal - in browser this shows the code;
-// with Capacitor IR plugin, this would actually transmit
+// Check if the device has an IR emitter (only meaningful in native app)
+export async function checkIREmitter(): Promise<boolean> {
+  try {
+    const result = await IrTransmitter.hasIrEmitter();
+    return result.hasIr;
+  } catch {
+    return false;
+  }
+}
+
+// Send actual IR signal using the Capacitor native plugin
+// Falls back to simulation when running in browser
 export async function sendIRSignal(
   brand: string,
+  acState: ACState,
   command: string,
   params: Record<string, unknown> = {}
 ): Promise<{ success: boolean; message: string; codePreview: string }> {
-  // Check if running with Capacitor IR plugin (native app)
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  if (typeof (window as any).Capacitor !== 'undefined') {
-    try {
-      // In native Capacitor app, use IR plugin
-      const irModule = (window as any).Capacitor?.Plugins?.IrTransmitter;
-      if (irModule) {
-        await irModule.transmit({ frequency: 38000, pattern: [] });
-        return { success: true, message: '红外信号已发送', codePreview: '' };
-      }
-    } catch {
-      // Fall back to simulation
+  const codePreview = generateCodePreview(brand, command, params);
+
+  // Try native IR transmission via Capacitor plugin
+  try {
+    const { hasIr } = await IrTransmitter.hasIrEmitter();
+    if (hasIr) {
+      // Generate real NEC pulse pattern using the current AC state
+      const pulses = generateIRCode(
+        brand,
+        acState.mode,
+        acState.temperature,
+        acState.fanSpeed,
+        acState.power
+      );
+
+      await IrTransmitter.transmit({
+        frequency: 38000,
+        pattern: pulses,
+      });
+
+      return { success: true, message: '红外信号已发射 ✓', codePreview };
     }
+  } catch {
+    // Plugin not available or error — fall through to simulation
   }
 
-  // Browser simulation - show the code that would be sent
-  const codePreview = generateCodePreview(brand, command, params);
-  console.log(`[IR] ${brand} ${command}:`, codePreview);
+  // Browser / no IR hardware: simulation mode
+  console.log(`[IR Sim] ${brand} ${command}:`, codePreview);
   return {
-    success: true,
-    message: `已模拟发送: ${command}`,
-    codePreview
+    success: false,
+    message: `模拟模式: ${command}`,
+    codePreview,
   };
 }
 
