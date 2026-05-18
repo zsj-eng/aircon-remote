@@ -1,4 +1,4 @@
-import type { FC } from 'react';
+import { useState, useEffect, type FC } from 'react';
 import type { ACState, ACMode, FanSpeed, AppSettings } from '../../types';
 import TempDisplay from './TempDisplay';
 import PowerButton from './PowerButton';
@@ -7,7 +7,7 @@ import ModeSelector from './ModeSelector';
 import FanSpeedControl from './FanSpeedControl';
 import SwingControl from './SwingControl';
 import TimerPanel from './TimerPanel';
-import { sendIRSignal, getBrandById } from '../../services/irDatabase';
+import { sendIRSignal, getBrandById, checkIREmitter } from '../../services/irDatabase';
 
 interface RemotePanelProps {
   state: ACState;
@@ -18,6 +18,11 @@ interface RemotePanelProps {
 
 const RemotePanel: FC<RemotePanelProps> = ({ state, settings, onStateChange, onSendSignal }) => {
   const brandInfo = settings.selectedBrand ? getBrandById(settings.selectedBrand) : null;
+  const [irAvailable, setIrAvailable] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    checkIREmitter().then(setIrAvailable);
+  }, []);
 
   const sendCommand = async (command: string, params: Record<string, unknown> = {}) => {
     const result = await sendIRSignal(settings.selectedBrand || 'gree', state, command, params);
@@ -71,8 +76,21 @@ const RemotePanel: FC<RemotePanelProps> = ({ state, settings, onStateChange, onS
     <div className="flex flex-col items-center w-full max-w-sm mx-auto px-4 pb-8">
       {/* Brand indicator */}
       {brandInfo && (
-        <div className="text-xs text-gray-500 mb-4 text-center">
+        <div className="text-xs text-gray-500 mb-1 text-center">
           当前品牌: {brandInfo.name}
+        </div>
+      )}
+
+      {/* IR Availability Indicator */}
+      {irAvailable !== null && (
+        <div
+          className="text-xs mb-3 px-3 py-1 rounded-full text-center"
+          style={{
+            background: irAvailable ? 'rgba(0,212,255,0.1)' : 'rgba(255,107,53,0.1)',
+            color: irAvailable ? '#00d4ff' : '#ff6b35',
+          }}
+        >
+          {irAvailable ? '✅ 红外已就绪，对准空调操作' : '⚠️ 手机不支持红外发射'}
         </div>
       )}
 

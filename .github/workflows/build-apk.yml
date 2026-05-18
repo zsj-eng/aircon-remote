@@ -34,6 +34,9 @@ jobs:
       - name: Sync Capacitor
         run: npx cap sync android
 
+      - name: Register custom IR plugin
+        run: echo '[{"pkg":"IrTransmitter","classpath":"com.aircon.remote.IrTransmitterPlugin"},{"pkg":"@capacitor/local-notifications","classpath":"com.capacitorjs.plugins.localnotifications.LocalNotificationsPlugin"}]' > android/app/src/main/assets/capacitor.plugins.json
+
       - name: Grant gradlew permissions
         run: chmod +x android/gradlew
 
